@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+cd "$(git rev-parse --show-toplevel)"
+
+printf '%s\n' 'pre-commit: checking staged whitespace...'
+if ! git diff --cached --check; then
+    printf '%s\n' 'pre-commit: fix staged whitespace errors before committing.' >&2
+    exit 1
+fi
+
+printf '%s\n' 'pre-commit: rebuilding and running headless tests and JAR checks...'
+if ! make --always-make check; then
+    printf '%s\n' 'pre-commit: checks failed; commit blocked.' >&2
+    exit 1
+fi
+
+printf '%s\n' 'pre-commit: all checks passed.'
